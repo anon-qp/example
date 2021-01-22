@@ -3,6 +3,11 @@
 #include <tofino/stateful_alu_blackbox.p4>
 #include <tofino/intrinsic_metadata.p4>
 
+#define reg_1_size 256
+#define reg_2_size 512
+// actual th is th + 1
+#define reduce_th 3
+
 header ethernet_t ethernet;
 header tcp_t tcp;
 header udp_t udp;
@@ -123,7 +128,7 @@ action do_init_src_ip_2_1(dynamic_mask) {
         bit_and(meta_op_2.field_value_1, ipv4.srcIP, dynamic_mask);
 }
 
-action do_init_null_2_1(dynamic_mask) {
+action do_init_null_2_1() {
 	modify_field(meta_op_2.field_value_1, 0);
 }
 
@@ -140,7 +145,7 @@ action do_init_dst_ip_2_2(dynamic_mask) {
         bit_and(meta_op_2.field_value_2, ipv4.dstIP, dynamic_mask);
 }
 
-action do_init_null_2_2(dynamic_mask) {
+action do_init_null_2_2() {
 	modify_field(meta_op_2.field_value_2, 0);
 }
 
@@ -168,7 +173,7 @@ field_list_calculation hash_op_calc_1 {
 }
 
 action do_init_hash_1() {
-        modify_field_with_hash_based_offset(meta_op_1.index, 0, hash_op_calc_1, 65536);
+        modify_field_with_hash_based_offset(meta_op_1.index, 0, hash_op_calc_1, reg_1_size);
 }
 
 table init_hash_1 {
@@ -194,7 +199,7 @@ field_list_calculation hash_op_calc_2 {
 }
 
 action do_init_hash_2() {
-        modify_field_with_hash_based_offset(meta_op_2.index, 0, hash_op_calc_2, 1024);
+        modify_field_with_hash_based_offset(meta_op_2.index, 0, hash_op_calc_2, reg_2_size);
 }
 
 table init_hash_2 {
@@ -210,17 +215,17 @@ table init_hash_2 {
 register reg_1 {
 	// Add code here
 	width : 32;
-	instance_count : 65536;
+	instance_count : reg_1_size;
 }
 
 blackbox stateful_alu reduce_program_1 {
         reg: reg_1;
-	// Threshold set at 2
-        condition_lo: register_lo < 1;
+	// Threshold set
+        condition_lo: register_lo == reduce_th;
 	
         update_lo_1_value: register_lo + 1;
 
-        output_predicate: condition_lo;
+        output_predicate: not condition_lo;
         output_value: 1;
         output_dst: meta_app_data.drop_exec_op_1;
 }
@@ -240,17 +245,17 @@ blackbox stateful_alu distinct_program_1 {
 register reg_2 {
 	// Add code here
 	width : 32;
-	instance_count : 1024;
+	instance_count : reg_2_size;
 }
 
 blackbox stateful_alu reduce_program_2 {
         reg: reg_2;
-	// Threshold set at 2
-        condition_lo: register_lo < 1;
+	// Threshold set
+        condition_lo: register_lo == reduce_th;
 	
         update_lo_1_value: register_lo + 1;
 
-        output_predicate: condition_lo;
+        output_predicate: not condition_lo;
         output_value: 1;
         output_dst: meta_app_data.drop_exec_op_2;
 }

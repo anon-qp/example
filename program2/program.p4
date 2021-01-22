@@ -3,8 +3,8 @@
 #include <tofino/stateful_alu_blackbox.p4>
 #include <tofino/intrinsic_metadata.p4>
 
-#define reg_1_size 8192
-#define reg_2_size 4096
+#define reg_1_size 256
+#define reg_2_size 512
 
 header ethernet_t ethernet;
 header tcp_t tcp;
@@ -65,7 +65,7 @@ field_list_calculation hash_reduce_calc_1 {
 }
 
 action do_init_hash_reduce_1() {
-        modify_field_with_hash_based_offset(meta_mapinit_1.index, 0, hash_reduce_calc_1, 65536);
+        modify_field_with_hash_based_offset(meta_mapinit_1.index, 0, hash_reduce_calc_1, 1024);
 }
 
 table init_hash_reduce_1 {
@@ -91,7 +91,7 @@ field_list_calculation hash_distinct_calc_2 {
 }
 
 action do_init_hash_distinct_2() {
-        modify_field_with_hash_based_offset(meta_mapinit_2.index, 0, hash_distinct_calc_2, 65536);
+        modify_field_with_hash_based_offset(meta_mapinit_2.index, 0, hash_distinct_calc_2, 1024);
 }
 
 table init_hash_distinct_2 {
@@ -177,12 +177,12 @@ register reg_1 {
 
 blackbox stateful_alu reduce_program_1 {
         reg: reg_1;
-	// Threshold set at 2
-        condition_lo: register_lo < 1;
+	// Threshold set at >= 4
+        condition_lo: register_lo == 3;
 	
         update_lo_1_value: register_lo + 1;
 
-        output_predicate: condition_lo;
+        output_predicate: not condition_lo;
         output_value: 1;
         output_dst: meta_app_data.drop_1;
 }

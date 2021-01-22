@@ -6,7 +6,7 @@ from pathlib import Path
 
 def generate_traffic(proto2keys, fname):
     random_ip = RandIP()
-    random_ct = RandNum(5, 100)
+    random_ct = RandNum(1, 5)
     data = []
     for proto in [6, 17]:
         for i in range(proto2keys[proto]):
@@ -25,8 +25,8 @@ def main():
     p1 = Path('../data/w1.csv')
     p2 = Path('../data/w2.csv')
     p1.parent.mkdir(parents=True, exist_ok=True)
-    generate_traffic({6: 305, 17: 553}, p1)
-    generate_traffic({6: 671, 17: 389}, p2)
+    generate_traffic({6: 156, 17: 272}, p1)
+    generate_traffic({6: 359, 17: 212}, p2)
     print("Done!")
     return
 
