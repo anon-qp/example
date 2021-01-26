@@ -23,7 +23,7 @@ def send_traffic(path_to_csv, only_tcp, only_udp):
 
 def main():
     parser = argparse.ArgumentParser(description='Send traffic to tofino-model')
-    parser.add_argument('path_to_csv', help="Path to CSV file that has traffic data")
+    parser.add_argument('path_to_csv', nargs='+', help="Path to CSV file that has traffic data")
     parser.add_argument('log_file', help="Log file to store result(s)")
     parser.add_argument('-r', '--repeat', dest="total", type=int, default=1, help="Number of times to repeat the send-n-receive experiment [default=1]")
     parser.add_argument('--only-tcp', dest="only_tcp", action='store_true', help="Send only tcp packets")
@@ -33,18 +33,19 @@ def main():
 
     total_packet_list = []
     for i in range(args.total):
-        t = AsyncSniffer(iface="veth3")
-        t.start()
-        send_traffic(args.path_to_csv, args.only_tcp, args.only_udp)
-        total_packets = len(t.stop())
-        print("Total Packets Recvd.:", total_packets)
-        total_packet_list.append(total_packets)
-        if i == args.total - 1:
-            break
-        for j in range(15):
-            print(f"Resuming send_traffic again in {15-j}s...", end='\r')
-            time.sleep(1)
-            print('', end='\x1b[1K\r')
+        for csv_path in args.path_to_csv:
+            t = AsyncSniffer(iface="veth3")
+            t.start()
+            send_traffic(csv_path, args.only_tcp, args.only_udp)
+            total_packets = len(t.stop())
+            print("Total Packets Recvd.:", total_packets)
+            total_packet_list.append(total_packets)
+            # if i == args.total - 1:
+            #     break
+            for j in range(15):
+                print(f"Resuming send_traffic again in {15-j}s...", end='\r')
+                time.sleep(1)
+                print('', end='\x1b[1K\r')
 
     with open(args.log_file, 'w') as f:
         for tp in total_packet_list:

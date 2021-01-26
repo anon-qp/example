@@ -4,13 +4,14 @@
 #include <tofino/intrinsic_metadata.p4>
 
 
-#define reg_1_size 256
-#define reg_2_size 512
+#define reg_1_size 64
+#define reg_2_size 2048
 
-#define hash_width 9
+#define hash_width 11
+#define hash_algo crc_aug_ccitt
 
 // actual th is th + 1
-#define reduce_th 3
+#define reduce_th 14
 
 
 
@@ -174,7 +175,7 @@ field_list_calculation hash_op_calc_1 {
 	input {
 		hash_op_fields_1;
 	}
-	algorithm: crc16;
+	algorithm: hash_algo;
 	output_width: hash_width;
 }
 
@@ -200,7 +201,7 @@ field_list_calculation hash_op_calc_2 {
 	input {
 		hash_op_fields_2;
 	}
-	algorithm: crc16;
+	algorithm: hash_algo;
 	output_width: hash_width;
 }
 
