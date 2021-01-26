@@ -3,8 +3,17 @@
 #include <tofino/stateful_alu_blackbox.p4>
 #include <tofino/intrinsic_metadata.p4>
 
-#define reg_1_size 256
-#define reg_2_size 512
+
+#define reg_1_size 64
+#define reg_2_size 2048
+
+#define hash_size 2048
+#define hash_width 11
+#define hash_algo crc_aug_ccitt
+
+#define reduce_th 14
+
+
 
 header ethernet_t ethernet;
 header tcp_t tcp;
@@ -60,12 +69,12 @@ field_list_calculation hash_reduce_calc_1 {
 	input {
 		hash_reduce_fields_1;
 	}
-	algorithm: crc16;
-	output_width: 16;
+	algorithm: hash_algo;
+	output_width: hash_width;
 }
 
 action do_init_hash_reduce_1() {
-        modify_field_with_hash_based_offset(meta_mapinit_1.index, 0, hash_reduce_calc_1, 1024);
+        modify_field_with_hash_based_offset(meta_mapinit_1.index, 0, hash_reduce_calc_1, hash_size);
 }
 
 table init_hash_reduce_1 {
@@ -86,12 +95,12 @@ field_list_calculation hash_distinct_calc_2 {
 	input {
 		hash_distinct_fields_2;
 	}
-	algorithm: crc16;
-	output_width: 16;
+	algorithm: hash_algo;
+	output_width: hash_width;
 }
 
 action do_init_hash_distinct_2() {
-        modify_field_with_hash_based_offset(meta_mapinit_2.index, 0, hash_distinct_calc_2, 1024);
+        modify_field_with_hash_based_offset(meta_mapinit_2.index, 0, hash_distinct_calc_2, hash_size);
 }
 
 table init_hash_distinct_2 {
@@ -177,8 +186,8 @@ register reg_1 {
 
 blackbox stateful_alu reduce_program_1 {
         reg: reg_1;
-	// Threshold set at >= 4
-        condition_lo: register_lo == 3;
+	// Threshold set
+        condition_lo: register_lo == reduce_th;
 	
         update_lo_1_value: register_lo + 1;
 

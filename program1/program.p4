@@ -3,10 +3,16 @@
 #include <tofino/stateful_alu_blackbox.p4>
 #include <tofino/intrinsic_metadata.p4>
 
+
 #define reg_1_size 256
 #define reg_2_size 512
+
+#define hash_width 9
+
 // actual th is th + 1
 #define reduce_th 3
+
+
 
 header ethernet_t ethernet;
 header tcp_t tcp;
@@ -169,7 +175,7 @@ field_list_calculation hash_op_calc_1 {
 		hash_op_fields_1;
 	}
 	algorithm: crc16;
-	output_width: 16;
+	output_width: hash_width;
 }
 
 action do_init_hash_1() {
@@ -195,7 +201,7 @@ field_list_calculation hash_op_calc_2 {
 		hash_op_fields_2;
 	}
 	algorithm: crc16;
-	output_width: 16;
+	output_width: hash_width;
 }
 
 action do_init_hash_2() {

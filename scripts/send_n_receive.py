@@ -5,6 +5,8 @@ from tqdm.auto import tqdm
 import time
 
 
+INTER_PACKET_DELAY = 0.05
+
 def send_traffic(path_to_csv, only_tcp, only_udp):
     df = pd.read_csv(path_to_csv)
     for _, row in tqdm(df.iterrows(), total=df.shape[0]):
@@ -14,8 +16,8 @@ def send_traffic(path_to_csv, only_tcp, only_udp):
             packet = Ether() / IP(dst=row.dIP, src=row.sIP) / UDP()
         else:
             continue
-        sendp(packet, iface="veth1", count=row.ct, verbose=0, inter=0.015)
-        time.sleep(0.015)
+        sendp(packet, iface="veth1", count=row.ct, verbose=0, inter=INTER_PACKET_DELAY)
+        time.sleep(INTER_PACKET_DELAY)
     return
 
 
