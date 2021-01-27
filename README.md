@@ -1,7 +1,7 @@
 # Tofino case study
 In the case study for tofino, we run the following two queries. Query 0 is a new tcp connections query and it is run fully in the data-plane. Query 1 is UDP DDOS query and is run only partially in the data-plane till its `distinct` operator.
 
-Query 0 $\rightarrow$ New connections
+Query 0 --> New connections
 ```
 q = (PacketStream(qid=0)
 .filter(filter_vals=('proto',), func=('eq', 6))
@@ -13,7 +13,7 @@ q = (PacketStream(qid=0)
 ```
 
 
-Query 1 $\rightarrow$ UDP DDOS
+Query 1 --> UDP DDOS
 ```
 q = (PacketStream(qid=1)
 .filter(filter_vals=('proto',), func=('eq', 17))

@@ -20,8 +20,8 @@ pd init_hash_2 set_default_action do_init_hash_2
 
 ## Change table order
 To make `execute_op_1` follow `filter_1` table, execute all commands following the `+` symbol. Alternatively, if you execute all `-` symbol commands then, `execute_op_1` table will work after `filter_1` table.
-+ => filter_1 $\rightarrow$ execute_op_1
-- => filter_2 $\rightarrow$ execute_op_1
+`+ => filter_1 --> execute_op_1`
+`- => filter_2 --> execute_op_1`
 
 ```
 + pd execute_op_1 add_entry do_execute_reduce_1 meta_op_1_select_prog 0 meta_op_1_select_prog_mask 1 meta_app_data_drop_filter_1 0 meta_app_data_drop_filter_1_mask 1 meta_app_data_drop_filter_2 0 meta_app_data_drop_filter_2_mask 0 priority 1
@@ -38,8 +38,8 @@ To make `execute_op_1` follow `filter_1` table, execute all commands following t
 - pd execute_op_1 add_entry drop_exec_op_1 meta_op_1_select_prog 0 meta_op_1_select_prog_mask 0 meta_app_data_drop_filter_1 0 meta_app_data_drop_filter_1_mask 0 meta_app_data_drop_filter_2 1 meta_app_data_drop_filter_2_mask 1 priority 1
 ```
 
-+ => filter_1 $\rightarrow$ execute_op_2
-- => filter_2 $\rightarrow$ execute_op_2
+`+ => filter_1 --> execute_op_2`
+`- => filter_2 --> execute_op_2`
 
 ```
 + pd execute_op_2 add_entry do_execute_reduce_2 meta_op_2_select_prog 0 meta_op_2_select_prog_mask 1 meta_app_data_drop_filter_1 0 meta_app_data_drop_filter_1_mask 1 meta_app_data_drop_filter_2 0 meta_app_data_drop_filter_2_mask 0 priority 1
